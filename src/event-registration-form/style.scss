@@ -1,0 +1,117 @@
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+ @use "sass:color";
+
+$accent-color: #ab2b2b;
+
+#event-registration-form {
+	.stepper-bar {
+		.stepper-bar-progress {
+			position: relative;
+			height: 4px;
+			.stepper-bar-progress-bg {
+				background-color: #e0e0e0;
+				width: 100%;
+				height: 100%;
+				top: 0;
+				left: 0;
+				position: absolute;
+			}
+			.stepper-bar-progress-fg {
+				background-color: $accent-color;
+				transition: width 0.3s ease;
+				height: 100%;
+				top: 0;
+				left: 0;
+				position: absolute;
+			}
+		}
+
+		.stepper-bar-items {
+			display: flex;
+			justify-content: space-between;
+			margin-bottom: 20px;
+
+			&-item {
+				flex: 1;
+				text-align: center;
+				padding: 10px;
+				border-bottom: 2px solid #ccc;
+
+				&.active {
+					font-weight: bold;
+					border-color: #000;
+				}
+			}
+		}
+	}
+
+	.stepper-actions {
+		display: flex;
+		justify-content: space-between;
+		margin-top: 20px;
+
+		button {
+			padding: 8px 16px;
+			background-color: $accent-color;
+			color: #fff;
+			border: none;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+
+			&:hover {
+				background-color: color.adjust($accent-color, $lightness: 10%);
+			}
+		}
+	}
+
+	.counter-input {
+		text-align: center;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+
+		.counter-input-value {
+			flex-grow: 1;
+			text-align: center;
+			border: none;
+			font-size: 16px;
+			font-weight: bold;
+			padding: 0 8px;
+		}
+
+		.counter-input-button {
+			flex-shrink: 0;
+			display: block;
+			width: 32px;
+			height: 32px;
+
+			background-color: #cfcfcf;
+			transition: background-color 0.3s ease;
+
+			&:hover {
+				background-color: $accent-color;
+			}
+		}
+	}
+
+
+	.ticket-list {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+
+		.ticket-item {
+			border: 1px solid #ddd;
+			padding: 12px;
+			border-radius: 4px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+	}	
+}
