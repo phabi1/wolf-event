@@ -2,10 +2,6 @@
 
 namespace Wolf\Event;
 
-use Wolf\Core\DependencyInjection\Container;
-use Wolf\Event\Domain\Repository\EventRepository;
-use Wolf\Event\Domain\Repository\ParticipantRepository;
-
 class Plugin
 {
     public function bootstrap()
@@ -21,9 +17,5 @@ class Plugin
             }
         });
 
-
-        $container = Container::getInstance();
-        $container->setType('wolf-event.repository.event', EventRepository::class);
-        $container->setType('wolf-event.repository.participant', ParticipantRepository::class);
     }
 }

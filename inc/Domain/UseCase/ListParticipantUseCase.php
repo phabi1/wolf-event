@@ -3,14 +3,14 @@
 namespace Wolf\Event\Domain\UseCase;
 
 use Wolf\Core\DependencyInjection\ContainerAwareInterface;
-use Wolf\Core\DependencyInjection\ContainerTrait;
+use Wolf\Core\DependencyInjection\ContainerAwareTrait;
 use Wolf\Core\Domain\UseCase\UseCaseInterface;
 use Wolf\Event\Domain\Repository\ParticipantRepository;
 
 class ListParticipantUseCase implements UseCaseInterface, ContainerAwareInterface
 {
 
-    use ContainerTrait;
+    use ContainerAwareTrait;
 
     /**
      * @var ParticipantRepository

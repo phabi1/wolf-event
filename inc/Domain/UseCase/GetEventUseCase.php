@@ -8,7 +8,7 @@ use Wolf\Event\Domain\Repository\EventRepository;
 
 class GetEventUseCase implements UseCaseInterface, ContainerAwareInterface
 {
-    use \Wolf\Core\DependencyInjection\ContainerTrait;
+    use \Wolf\Core\DependencyInjection\ContainerAwareTrait;
 
     private $eventRepository;
 

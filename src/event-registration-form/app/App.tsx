@@ -1,16 +1,14 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useMemo } from "react";
 import ContactStep from "./components/steps/ContactStep";
 import ParticipantsStep from "./components/steps/ParticipantsStep";
 import TicketsStep from "./components/steps/TicketsStep";
 import Stepper from "./components/ui/Stepper";
-import {
-	EventContext,
-	EventContextProvider,
-	EventContextType,
-} from "./contexts/event";
+import { EventContext } from "./contexts/event";
+import { DataContext } from "./contexts/data";
 
 export default function App() {
-	const state = useContext<EventContextType>(EventContext);
+	const eventContext = useContext<any>(EventContext);
+	const dataContext = useContext<any>(DataContext);
 
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<null | string>(null);
@@ -39,16 +37,6 @@ export default function App() {
 					name: price.name,
 					count: 0,
 				}));
-
-console.log(event);
-
-				state.setEvent && state.setEvent(event);
-				state.setData &&
-					state.setData({
-						tickets: tickets,
-						participants: [],
-						contactInfo: null,
-					});
 			} catch (error) {
 				console.error("Error fetching event data:", error);
 			} finally {
@@ -59,66 +47,81 @@ console.log(event);
 		fetchEventData();
 	}, []);
 
+	const EventError = useMemo(() => {
+		if (error === "registration_closed") {
+			return (
+				<div>
+					<p>
+						Registration is closed.
+						{eventContext?.registration_closing_date && (
+							<span>
+								{" "}
+								It closed on{" "}
+								{new Date(
+									eventContext.registration_closing_date,
+								).toLocaleDateString()}
+								.
+							</span>
+						)}
+					</p>
+				</div>
+			);
+		} else if (error === "registration_upcoming") {
+			return (
+				<div>
+					<p>
+						Registration is not yet open.
+						{eventContext?.registration_opening_date && (
+							<span>
+								{" "}
+								It opens on{" "}
+								{new Date(
+									eventContext.registration_opening_date,
+								).toLocaleDateString()}
+								.
+							</span>
+						)}
+					</p>
+				</div>
+			);
+		} else if (error === "registration_not_available") {
+			return (
+				<div>
+					<p>Registration is not available.</p>
+				</div>
+			);
+		}
+		return <div>An error occurred.</div>;
+	}, [error, eventContext]);
+
 	return (
 		<div>
-			<EventContextProvider>
+			<EventContext.Provider value={eventContext}>
 				{loading ? (
 					<div>Loading...</div>
 				) : (
 					<>
-						<h1>Registration for {state.event?.title}</h1>
+						<h1>Registration for {eventContext?.title}</h1>
 						{error ? (
-							<div>
-								{error === "registration_closed" && (
-									<p>
-										Registration is closed.
-										{state.event?.registration_closing_date && (
-											<span>
-												{" "}
-												It closed on{" "}
-												{new Date(
-													state.event.registration_closing_date,
-												).toLocaleDateString()}
-												.
-											</span>
-										)}
-									</p>
-								)}
-								{error === "registration_upcoming" && (
-									<p>
-										Registration is not yet open.
-										{state.event?.registration_opening_date && (
-											<span>
-												{" "}
-												It opens on{" "}
-												{new Date(
-													state.event.registration_opening_date,
-												).toLocaleDateString()}
-												.
-											</span>
-										)}
-									</p>
-								)}
-								{error === "registration_not_available" && (
-									<p>Registration is not available.</p>
-								)}
-							</div>
+							EventError
 						) : (
-							<Stepper>
-								<Stepper.Step label="Tickets">
-									<TicketsStep></TicketsStep>
-								</Stepper.Step>
-								<Stepper.Step label="Participants">
-									<ParticipantsStep></ParticipantsStep>
-								</Stepper.Step>
-								<Stepper.Step label="Contact">
-									<ContactStep></ContactStep>
-								</Stepper.Step>
-							</Stepper>
+							<DataContext.Provider value={dataContext}>
+								<Stepper>
+									<Stepper.Step label="Tickets">
+										<TicketsStep></TicketsStep>
+									</Stepper.Step>
+									<Stepper.Step label="Participants">
+										<ParticipantsStep></ParticipantsStep>
+									</Stepper.Step>
+									<Stepper.Step label="Contact">
+										<ContactStep></ContactStep>
+									</Stepper.Step>
+								</Stepper>
+							</DataContext.Provider>
 						)}
 					</>
 				)}
-			</EventContextProvider>
+			</EventContext.Provider>
 		</div>
 	);
 }
