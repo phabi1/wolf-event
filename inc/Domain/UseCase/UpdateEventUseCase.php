@@ -2,29 +2,17 @@
 
 namespace Wolf\Event\Domain\UseCase;
 
-use Wolf\Core\DependencyInjection\ContainerAwareInterface;
-use Wolf\Core\DependencyInjection\ContainerAwareTrait;
 use Wolf\Core\Domain\UseCase\UseCaseInterface;
 use Wolf\Event\Domain\Repository\EventRepository;
 
-class UpdateEventUseCase implements UseCaseInterface, ContainerAwareInterface
+class UpdateEventUseCase implements UseCaseInterface
 {
-    use ContainerAwareTrait;
-
     /**
      * @var EventRepository
      */
     private $eventRepository;
 
-    public function getEventRepository()
-    {
-        if (!$this->eventRepository) {
-            $this->eventRepository = $this->container->get('wolf-event.repository.event');
-        }
-        return $this->eventRepository;
-    }
-
-    public function setEventRepository(EventRepository $eventRepository)
+    public function __construct(EventRepository $eventRepository)
     {
         $this->eventRepository = $eventRepository;
     }
@@ -37,9 +25,8 @@ class UpdateEventUseCase implements UseCaseInterface, ContainerAwareInterface
 
         // Logic to update an event
         $eventId = $data['id'];
-        // Assume we have a repository to handle event data
-        $eventRepository = new \Wolf\Event\Domain\Repository\EventRepository();
-        $eventRepository->update($eventId, $data['data']);
-        return $eventRepository->findById($eventId);
+            // Assume we have a repository to handle event data
+        $this->eventRepository->update($eventId, $data['data']);
+        return $this->eventRepository->findById($eventId);
     }
 }

@@ -2,30 +2,17 @@
 
 namespace Wolf\Event\Domain\UseCase;
 
-use Wolf\Core\DependencyInjection\ContainerAwareInterface;
-use Wolf\Core\DependencyInjection\ContainerAwareTrait;
 use Wolf\Core\Domain\UseCase\UseCaseInterface;
 use Wolf\Event\Domain\Repository\EventRepository;
 
-class ListEventUseCase implements UseCaseInterface, ContainerAwareInterface
-{
-
-    use ContainerAwareTrait;
+class ListEventUseCase implements UseCaseInterface{
 
     /**
      * @var EventRepository
      */
     private $eventRepository;
 
-    public function getEventRepository()
-    {
-        if (!$this->eventRepository) {
-            $this->eventRepository = $this->container->get('wolf-event.repository.event');
-        }
-        return $this->eventRepository;
-    }
-
-    public function setEventRepository(EventRepository $eventRepository)
+    public function __construct(EventRepository $eventRepository)
     {
         $this->eventRepository = $eventRepository;
     }
@@ -44,9 +31,8 @@ class ListEventUseCase implements UseCaseInterface, ContainerAwareInterface
         $offset = ($page - 1) * $size;
         $limit = $size;
 
-        $eventRepository = $this->getEventRepository();
-        $events = $eventRepository->find([], $offset, $limit);
-        $total = $eventRepository->count();
+        $events = $this->eventRepository->find([], $offset, $limit);
+        $total = $this->eventRepository->count();
 
         return [
             'items' => $events,

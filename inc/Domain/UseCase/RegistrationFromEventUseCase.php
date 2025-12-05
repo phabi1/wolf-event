@@ -2,25 +2,20 @@
 
 namespace Wolf\Event\Domain\UseCase;
 
-use Wolf\Core\DependencyInjection\ContainerAwareInterface;
-use Wolf\Core\DependencyInjection\ContainerAwareTrait;
 use Wolf\Core\Domain\UseCase\UseCaseInterface;
+use Wolf\Event\Domain\Repository\EventRepository;
 
-class RegistrationFromEventUseCase implements UseCaseInterface, ContainerAwareInterface
+class RegistrationFromEventUseCase implements UseCaseInterface
 {
-    use ContainerAwareTrait;
 
     /**
      * @var \Wolf\Event\Domain\Repository\EventRepository
      */
     private $eventRepository;
 
-    public function getEventRepository()
+    public function __construct(EventRepository $eventRepository)
     {
-        if (!$this->eventRepository) {
-            $this->eventRepository = $this->container->get('wolf-event.repository.event');
-        }
-        return $this->eventRepository;
+        $this->eventRepository = $eventRepository;
     }
 
     public function execute(array $data = array())
@@ -31,7 +26,7 @@ class RegistrationFromEventUseCase implements UseCaseInterface, ContainerAwareIn
             throw new \InvalidArgumentException('Event ID is required for registration.');
         }
 
-        $event = $this->getEventRepository()->findById($eventId);
+        $event = $this->eventRepository->findById($eventId);
 
         if (!$event) {
             throw new \RuntimeException('Event not found.');

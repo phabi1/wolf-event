@@ -2,14 +2,12 @@
 
 namespace Wolf\Event\Domain\UseCase;
 
-use Wolf\Core\DependencyInjection\ContainerAwareInterface;
-use Wolf\Core\DependencyInjection\ContainerAwareTrait;
 use Wolf\Core\Domain\UseCase\UseCaseInterface;
+use Wolf\Event\Domain\Repository\EventRepository;
+use Wolf\Event\Domain\Repository\ParticipantRepository;
 
-class CreateParticipantUseCase implements UseCaseInterface, ContainerAwareInterface
+class CreateParticipantUseCase implements UseCaseInterface
 {
-    use ContainerAwareTrait;
-
     /**
      * @var EventRepository
      */
@@ -20,20 +18,12 @@ class CreateParticipantUseCase implements UseCaseInterface, ContainerAwareInterf
      */
     private $participantRepository;
 
-    public function getEventRepository()
-    {
-        if (!$this->eventRepository) {
-            $this->eventRepository = $this->container->get('wolf-event.repository.event');
-        }
-        return $this->eventRepository;
-    }
-
-    public function getParticipantRepository()
-    {
-        if (!$this->participantRepository) {
-            $this->participantRepository = $this->container->get('wolf-event.repository.participant');
-        }
-        return $this->participantRepository;
+    public function __construct(
+        EventRepository $eventRepository,
+        ParticipantRepository $participantRepository
+    ) {
+        $this->eventRepository = $eventRepository;
+        $this->participantRepository = $participantRepository;
     }
 
     public function execute(array $payload = array())
@@ -50,12 +40,11 @@ class CreateParticipantUseCase implements UseCaseInterface, ContainerAwareInterf
             'custom_fields' => isset($data['custom_fields']) ? $data['custom_fields'] : [],
         ];
 
-        $participantRepository = $this->getParticipantRepository();
-        $participantId = $participantRepository->insert($participant);
 
-        $eventRepository = $this->getEventRepository();
-        $eventRepository->updateParticipantCount($eventId);
+        $participantId = $this->participantRepository->insert($participant);
 
-        return $participantRepository->findById($participantId);
+        $this->eventRepository->updateParticipantCount($eventId);
+
+        return $this->participantRepository->findById($participantId);
     }
 }

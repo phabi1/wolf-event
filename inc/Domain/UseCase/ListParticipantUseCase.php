@@ -2,30 +2,17 @@
 
 namespace Wolf\Event\Domain\UseCase;
 
-use Wolf\Core\DependencyInjection\ContainerAwareInterface;
-use Wolf\Core\DependencyInjection\ContainerAwareTrait;
 use Wolf\Core\Domain\UseCase\UseCaseInterface;
 use Wolf\Event\Domain\Repository\ParticipantRepository;
 
-class ListParticipantUseCase implements UseCaseInterface, ContainerAwareInterface
+class ListParticipantUseCase implements UseCaseInterface
 {
-
-    use ContainerAwareTrait;
-
     /**
      * @var ParticipantRepository
      */
     private $participantRepository;
 
-    public function getParticipantRepository()
-    {
-        if (!$this->participantRepository) {
-            $this->participantRepository = $this->container->get('wolf-event.repository.participant');
-        }
-        return $this->participantRepository;
-    }
-
-    public function setParticipantRepository(ParticipantRepository $participantRepository)
+    public function __construct(ParticipantRepository $participantRepository)
     {
         $this->participantRepository = $participantRepository;
     }
@@ -42,14 +29,12 @@ class ListParticipantUseCase implements UseCaseInterface, ContainerAwareInterfac
         $size = $options['size'];
 
         $offset = ($page - 1) * $size;
-        $limit = $size;
-
-        $participantRepository = $this->getParticipantRepository();
-        $participants = $participantRepository->find([
+                    $limit = $size;
+        
+        $participants = $this->participantRepository->find([
             'event_id' => $options['event_id']
         ], $offset, $limit);
-        $total = $participantRepository->count();
-
+        $total = $this->participantRepository->count();
         return [
             'items' => $participants,
             'total' => $total,

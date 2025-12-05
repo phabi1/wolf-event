@@ -2,22 +2,16 @@
 
 namespace Wolf\Event\Domain\UseCase;
 
-use Wolf\Core\DependencyInjection\ContainerAwareInterface;
 use Wolf\Core\Domain\UseCase\UseCaseInterface;
 use Wolf\Event\Domain\Repository\EventRepository;
 
-class GetEventUseCase implements UseCaseInterface, ContainerAwareInterface
+class GetEventUseCase implements UseCaseInterface
 {
-    use \Wolf\Core\DependencyInjection\ContainerAwareTrait;
-
     private $eventRepository;
 
-    public function getEventRepository()
+    public function __construct(EventRepository $eventRepository)
     {
-        if (!$this->eventRepository) {
-            $this->eventRepository = $this->container->get('wolf-event.repository.event');
-        }
-        return $this->eventRepository;
+        $this->eventRepository = $eventRepository;
     }
 
     public function execute(array $data = array())
@@ -27,8 +21,7 @@ class GetEventUseCase implements UseCaseInterface, ContainerAwareInterface
         }
         $eventId = $data['id'];
 
-        $eventRepository = $this->getEventRepository();
-        $event = $eventRepository->findById($eventId);
+        $event = $this->eventRepository->findById($eventId);
 
         return $event;
     }

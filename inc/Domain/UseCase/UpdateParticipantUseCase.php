@@ -2,29 +2,18 @@
 
 namespace Wolf\Event\Domain\UseCase;
 
-use Wolf\Core\DependencyInjection\ContainerAwareInterface;
-use Wolf\Core\DependencyInjection\ContainerAwareTrait;
 use Wolf\Core\Domain\UseCase\UseCaseInterface;
 use Wolf\Event\Domain\Repository\ParticipantRepository;
 
-class UpdateParticipantUseCase implements UseCaseInterface, ContainerAwareInterface
+class UpdateParticipantUseCase implements UseCaseInterface
 {
-    use ContainerAwareTrait;
-
+    
     /**
      * @var ParticipantRepository
      */
     private $participantRepository;
 
-    public function getParticipantRepository()
-    {
-        if (!$this->participantRepository) {
-            $this->participantRepository = $this->container->get('wolf-event.repository.participant');
-        }
-        return $this->participantRepository;
-    }
-
-    public function setParticipantRepository(ParticipantRepository $participantRepository)
+    public function __construct(ParticipantRepository $participantRepository)
     {
         $this->participantRepository = $participantRepository;
     }
@@ -38,8 +27,7 @@ class UpdateParticipantUseCase implements UseCaseInterface, ContainerAwareInterf
         // Logic to update an event
         $participantId = $data['id'];
         // Assume we have a repository to handle participant data
-        $participantRepository = $this->getParticipantRepository();
-        $participantRepository->update($participantId, $data['data']);
-        return $participantRepository->findById($participantId);
+        $this->participantRepository->update($participantId, $data['data']);
+        return $this->participantRepository->findById($participantId);
     }
 }

@@ -2,26 +2,14 @@
 
 namespace Wolf\Event\Domain\UseCase;
 
-use Wolf\Core\DependencyInjection\ContainerAwareInterface;
-use Wolf\Core\DependencyInjection\ContainerAwareTrait;
 use Wolf\Core\Domain\UseCase\UseCaseInterface;
 use Wolf\Event\Domain\Repository\EventRepository;
 
-class RemoveEventUseCase implements UseCaseInterface, ContainerAwareInterface
+class RemoveEventUseCase implements UseCaseInterface
 {
-    use ContainerAwareTrait;
-
     private EventRepository $eventRepository;
 
-    public function getEventRepository()
-    {
-        if (!$this->eventRepository) {
-            $this->eventRepository = $this->container->get('wolf-event.repository.event');
-        }
-        return $this->eventRepository;
-    }
-
-    public function setEventRepository(EventRepository $eventRepository)
+    public function __construct(EventRepository $eventRepository)
     {
         $this->eventRepository = $eventRepository;
     }
@@ -35,7 +23,6 @@ class RemoveEventUseCase implements UseCaseInterface, ContainerAwareInterface
         // Logic to remove an event
         $eventId = $data['id'];
         // Assume we have a repository to handle event data
-        $eventRepository = new EventRepository();
-        return $eventRepository->delete($eventId);
+        return $this->eventRepository->delete($eventId);
     }
 }
