@@ -6,6 +6,11 @@ class WolfCheckoutIntegration
 {
     public function integrate()
     {
-        // Integration logic with Wolf Checkout plugin goes here.
+        add_action('wolf_checkout_process_order', array($this, 'processOrder'), 10, 2);
+    }
+
+    public function processOrder($orderId, $orderData)
+    {
+        // Handle the order processing related to the event plugin here.
     }
 }
