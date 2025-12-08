@@ -4,20 +4,19 @@ namespace Wolf\Event\Api\Controller;
 
 use Wolf\Core\Api\Controller\AbstractController;
 use Wolf\Core\Domain\UseCase\UseCaseBus;
-use Wolf\Event\Domain\UseCase\CreateParticipantUseCase;
-use Wolf\Event\Domain\UseCase\GetParticipantUseCase;
-use Wolf\Event\Domain\UseCase\ListParticipantUseCase;
-use Wolf\Event\Domain\UseCase\RemoveParticipantUseCase;
-use Wolf\Event\Domain\UseCase\UpdateParticipantUseCase;
 
 class ParticipantController extends AbstractController
 {
     private $useCaseBus;
 
+    /**
+     * Get the UseCaseBus service.
+     * @return UseCaseBus
+     */
     public function getUseCaseBus()
     {
         if (!$this->useCaseBus) {
-            $this->useCaseBus = $this->getService(UseCaseBus::class);
+            $this->useCaseBus = $this->getService('wolf-core.use-case-bus');
         }
         return $this->useCaseBus;
     }
@@ -34,7 +33,7 @@ class ParticipantController extends AbstractController
             $options['size'] = (int) $request['size'];
         }
 
-        $res = $this->getUseCaseBus()->execute(ListParticipantUseCase::class, $options);
+        $res = $this->getUseCaseBus()->execute('list_participants', $options);
         return $res;
     }
 
@@ -42,7 +41,7 @@ class ParticipantController extends AbstractController
     {
         $id = $request['id'];
 
-        $item = $this->getUseCaseBus()->execute(GetParticipantUseCase::class, ['id' => $id]);
+        $item = $this->getUseCaseBus()->execute('get_participant', ['id' => $id]);
         if (!$item) {
             throw new \WP_Error('wolf_event_not_found', 'Event not found', ['status' => 404]);
         }
@@ -54,7 +53,7 @@ class ParticipantController extends AbstractController
         $eventId = $request['eventId'];
         $data = $request->get_params();
 
-        $res = $this->getUseCaseBus()->execute(CreateParticipantUseCase::class, [
+        $res = $this->getUseCaseBus()->execute('create_participant', [
             'event_id' => $eventId,
             'data' => $data
         ]);
@@ -67,7 +66,7 @@ class ParticipantController extends AbstractController
         $id = $request['id'];
         $data = $request['data'];
 
-        $res = $this->getUseCaseBus()->execute(UpdateParticipantUseCase::class, [
+        $res = $this->getUseCaseBus()->execute('update_participant', [
             'event_id' => $eventId,
             'id' => $id,
             'data' => $data
@@ -79,7 +78,7 @@ class ParticipantController extends AbstractController
     {
         $eventId = $request['eventId'];
         $id = $request['id'];
-        $res = $this->getUseCaseBus()->execute(RemoveParticipantUseCase::class, [
+        $res = $this->getUseCaseBus()->execute('remove_participant', [
             'event_id' => $eventId,
             'id' => $id
         ]);

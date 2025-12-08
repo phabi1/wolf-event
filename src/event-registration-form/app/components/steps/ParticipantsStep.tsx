@@ -1,21 +1,25 @@
 import { useContext, useEffect, useState } from "react";
-import { EventContext } from "../../contexts/event";
+import { DataContext } from "../../contexts/data";
+import { EventContext, type EventContextType } from "../../contexts/event";
+import { Participant } from "../../models/participant.model";
+import ParticipantList from "./Participants/ParticipantList";
 
-type Participant = {
-	firstname: string;
-	email: string;
-};
-
-export default function ParticipantsPage() {
-	const eventContext = useContext(EventContext);
+export default function ParticipantsStep() {
+	const eventContext = useContext<EventContextType | null>(EventContext);
+	const dataContext = useContext(DataContext);
 	const [participants, setParticipants] = useState<Array<Participant>>([]);
 
 	useEffect(() => {
-		// In real scenario, fetch participants from eventContext or API
-		if (eventContext && eventContext.participants) {
-			setParticipants(eventContext.participants);
+		if (dataContext && dataContext.data.tickets) {
+			setParticipants(
+				dataContext.data.tickets.map((ticket) => ({
+					firstname: "",
+					lastname: "",
+					customFields: {},
+				})),
+			);
 		}
-	}, [eventContext]);
+	}, [dataContext]);
 
 	return (
 		<div>
@@ -23,11 +27,11 @@ export default function ParticipantsPage() {
 				{participants.length === 0 ? (
 					<p>No participants found.</p>
 				) : (
-					<ul>
-						{participants.map((participant: Participant, index: number) => (
-							<li key={index}>{participant.firstname}</li>
-						))}
-					</ul>
+					<ParticipantList
+						participants={participants}
+						fields={eventContext?.participant_fields || []}
+						onParticipantsChange={setParticipants}
+					/>
 				)}
 			</div>
 		</div>

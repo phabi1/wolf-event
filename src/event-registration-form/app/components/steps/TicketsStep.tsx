@@ -1,47 +1,28 @@
-import { useEffect, useMemo, useState, useContext } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { DataContext, DataContextType } from "../../contexts/data";
+import { EventContext, EventContextType } from "../../contexts/event";
+import { Ticket } from "../../models/ticket.model";
 import Counter from "../ui/Counter";
-import { EventContext } from "../../contexts/event";
 
-export default function PricesPage() {
-	const eventContext = useContext(EventContext);
-
-	const [tickets, setTickets] = useState<
-		{
-			name: string;
-			count: number;
-		}[]
-	>([]);
+export default function TicketsStep() {
+	const eventContext = useContext<EventContextType | null>(EventContext);
+	const dataContext = useContext<DataContextType>(DataContext);
 
 	const [remainingPlaces, setRemainingPlaces] = useState(0);
 
 	const totalAmount = useMemo(() => {
-		return tickets.reduce((total, ticket, index) => {
-			return total + ticket.count * eventContext.event.prices[index].amount;
+		if (!eventContext) return 0;
+		return dataContext.data.tickets.reduce((total, ticket, index) => {
+			return total + ticket.count * eventContext?.prices[index].amount || 0;
 		}, 0);
-	}, [tickets, eventContext.event]);
-
-	useEffect(() => {
-		if (!eventContext.event) return;
-		setTickets(
-			eventContext.event.prices.map((price: any) => {
-				const count =
-					tickets.find((ticket) => ticket.name === price.name)?.count || 0;
-				return {
-					name: price.name,
-					count: count,
-				};
-			}),
-		);
-	}, [eventContext]);
+	}, [dataContext, eventContext]);
 
 	const handleTicketCountChange = (index: number, newCount: number) => {
-		setTickets((prevTickets) => {
-			const updatedTickets = [...prevTickets];
-			updatedTickets[index] = {
-				...updatedTickets[index],
-				count: newCount,
-			};
-			return updatedTickets;
+		dataContext.setData({
+			...dataContext.data,
+			tickets: dataContext.data.tickets.map((ticket, i) =>
+				i === index ? { ...ticket, count: newCount } : ticket,
+			),
 		});
 	};
 
@@ -50,11 +31,11 @@ export default function PricesPage() {
 			<div>Remaining places : {remainingPlaces}</div>
 			<div>Choose Your Tickets:</div>
 			<div>
-				{tickets.length === 0 ? (
+				{dataContext.data.tickets.length === 0 ? (
 					<p>No tickets available.</p>
 				) : (
 					<div className="ticket-list">
-						{tickets.map((price: any, index: number) => (
+						{dataContext.data.tickets.map((price: any, index: number) => (
 							<div className="ticket-item" key={index}>
 								<div>
 									<div>{price.name}</div>
@@ -62,7 +43,7 @@ export default function PricesPage() {
 								</div>
 								<Counter
 									value={
-										tickets.find((ticket) => ticket.name === price.name)
+										dataContext.data.tickets.find((ticket) => ticket.name === price.name)
 											?.count || 0
 									}
 									valueChange={(newValue) =>

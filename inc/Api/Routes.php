@@ -2,7 +2,6 @@
 
 namespace Wolf\Event\Api;
 
-use Wolf\Core\Api\Router;
 use Wolf\Core\DependencyInjection\Container;
 use Wolf\Event\Api\Controller\EventController;
 use Wolf\Event\Api\Controller\ParticipantController;
@@ -11,7 +10,7 @@ class Routes
 {
     public function setup()
     {
-        $router = Container::getInstance()->create(Router::class);
+        $router = Container::getInstance()->create('wolf-core.api.router');
         $router->setNamespace('wolf-event/v1');
         $router->setRoutes([
             [

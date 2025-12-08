@@ -1,28 +1,32 @@
-import { useEffect, useState, useContext, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ContactStep from "./components/steps/ContactStep";
 import ParticipantsStep from "./components/steps/ParticipantsStep";
+import SummaryStep from "./components/steps/SummaryStep";
 import TicketsStep from "./components/steps/TicketsStep";
 import Stepper from "./components/ui/Stepper";
+import { DataContext, DataContextInfo } from "./contexts/data";
 import { EventContext } from "./contexts/event";
-import { DataContext } from "./contexts/data";
 
 export default function App() {
-	const eventContext = useContext<any>(EventContext);
-	const dataContext = useContext<any>(DataContext);
+	const [event, setEvent] = useState<any>(null);
+	const [data, setData] = useState<DataContextInfo>({
+		tickets: [],
+		participants: [],
+		contactInfo: {},
+	});
 
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<null | string>(null);
 
-	const eventID = 3; // Example event ID
-
 	useEffect(() => {
-		const fetchEventData = async () => {
+		const fetchEventData = async (eventId: string) => {
 			try {
 				setLoading(true);
 				const response = await fetch(
-					"/wp-json/wolf-event/v1/events/" + eventID + "/registration",
+					"/wp-json/wolf-event/v1/events/" + eventId + "/registration",
 				);
 				const event = await response.json();
+				setEvent(event);
 
 				if (event.registration_status !== "open") {
 					if (event.registration_status === "closed")
@@ -32,11 +36,6 @@ export default function App() {
 					else setError("registration_not_available");
 					return;
 				}
-
-				const tickets = event.prices.map((price: any) => ({
-					name: price.name,
-					count: 0,
-				}));
 			} catch (error) {
 				console.error("Error fetching event data:", error);
 			} finally {
@@ -44,8 +43,29 @@ export default function App() {
 			}
 		};
 
-		fetchEventData();
+		const urlParams = new URLSearchParams(window.location.search);
+		const eventId = urlParams.get("event_id");
+		if (eventId) {
+			fetchEventData(eventId);
+		} else {
+			console.error("No event_id provided in URL.");
+			setLoading(false);
+			setError("no_event_id");
+		}
 	}, []);
+
+	useEffect(() => {
+		if (event) {
+			const initialTickets = event.prices.map((price: any) => ({
+				name: price.name,
+				count: 0,
+			}));
+			setData((prevData: any) => ({
+				...prevData,
+				tickets: initialTickets,
+			}));
+		}
+	}, [event]);
 
 	const EventError = useMemo(() => {
 		if (error === "registration_closed") {
@@ -53,13 +73,11 @@ export default function App() {
 				<div>
 					<p>
 						Registration is closed.
-						{eventContext?.registration_closing_date && (
+						{event?.registration_closing_date && (
 							<span>
 								{" "}
 								It closed on{" "}
-								{new Date(
-									eventContext.registration_closing_date,
-								).toLocaleDateString()}
+								{new Date(event.registration_closing_date).toLocaleDateString()}
 								.
 							</span>
 						)}
@@ -71,13 +89,11 @@ export default function App() {
 				<div>
 					<p>
 						Registration is not yet open.
-						{eventContext?.registration_opening_date && (
+						{event?.registration_opening_date && (
 							<span>
 								{" "}
 								It opens on{" "}
-								{new Date(
-									eventContext.registration_opening_date,
-								).toLocaleDateString()}
+								{new Date(event.registration_opening_date).toLocaleDateString()}
 								.
 							</span>
 						)}
@@ -90,22 +106,28 @@ export default function App() {
 					<p>Registration is not available.</p>
 				</div>
 			);
+		} else if (error === "no_event_id") {
+			return (
+				<div>
+					<p>No event ID provided in the URL.</p>
+				</div>
+			);
 		}
 		return <div>An error occurred.</div>;
-	}, [error, eventContext]);
+	}, [error, event]);
 
 	return (
 		<div>
-			<EventContext.Provider value={eventContext}>
+			<EventContext.Provider value={event}>
 				{loading ? (
 					<div>Loading...</div>
 				) : (
 					<>
-						<h1>Registration for {eventContext?.title}</h1>
+						<h1>Registration for {event?.title}</h1>
 						{error ? (
 							EventError
 						) : (
-							<DataContext.Provider value={dataContext}>
+							<DataContext.Provider value={{ data, setData }}>
 								<Stepper>
 									<Stepper.Step label="Tickets">
 										<TicketsStep></TicketsStep>
@@ -115,6 +137,9 @@ export default function App() {
 									</Stepper.Step>
 									<Stepper.Step label="Contact">
 										<ContactStep></ContactStep>
+									</Stepper.Step>
+									<Stepper.Step label="Summary">
+										<SummaryStep></SummaryStep>
 									</Stepper.Step>
 								</Stepper>
 							</DataContext.Provider>

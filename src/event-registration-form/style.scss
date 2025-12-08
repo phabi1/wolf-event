@@ -9,6 +9,12 @@
 $accent-color: #ab2b2b;
 
 #event-registration-form {
+	input {
+		padding: 8px;
+		border: 1px solid #ccc;
+		font-size: 16px;
+	}
+	
 	.stepper-bar {
 		.stepper-bar-progress {
 			position: relative;
@@ -108,10 +114,34 @@ $accent-color: #ab2b2b;
 		.ticket-item {
 			border: 1px solid #ddd;
 			padding: 12px;
-			border-radius: 4px;
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
 		}
-	}	
+	}
+	
+	.participant-list {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+
+		.participant-item {
+			border: 1px solid #ddd;
+			padding: 12px;
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+
+			.participant-item-header {
+				font-weight: bold;
+				margin-bottom: 8px;
+			}
+
+			.participant-item-fields {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+			}
+		}
+	}
 }

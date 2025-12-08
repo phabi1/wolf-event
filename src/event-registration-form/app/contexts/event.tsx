@@ -1,3 +1,8 @@
 import { createContext } from "react";
 
-export const EventContext = createContext<any>(null);
+export type EventContextType = {
+	prices: Array<{ name: string; amount: number }>;
+	participant_fields: Array<string>;
+};
+
+export const EventContext = createContext<EventContextType | null>(null);
