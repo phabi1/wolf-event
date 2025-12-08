@@ -2,6 +2,7 @@
 
 namespace Wolf\Event\Domain\UseCase;
 
+use Wolf\Core\Domain\Entity\EntityManager;
 use Wolf\Core\Domain\UseCase\UseCaseInterface;
 use Wolf\Event\Domain\Repository\EventRepository;
 
@@ -12,9 +13,9 @@ class ListEventUseCase implements UseCaseInterface{
      */
     private $eventRepository;
 
-    public function __construct(EventRepository $eventRepository)
+    public function __construct(EntityManager $entityManager)
     {
-        $this->eventRepository = $eventRepository;
+        $this->eventRepository = $entityManager->getRepository('event');
     }
 
     public function execute(array $options = array())

@@ -2,6 +2,7 @@
 
 namespace Wolf\Event\Domain\UseCase;
 
+use Wolf\Core\Domain\Entity\EntityManager;
 use Wolf\Core\Domain\UseCase\UseCaseInterface;
 use Wolf\Event\Domain\Repository\ParticipantRepository;
 
@@ -12,9 +13,9 @@ class ListParticipantUseCase implements UseCaseInterface
      */
     private $participantRepository;
 
-    public function __construct(ParticipantRepository $participantRepository)
+    public function __construct(EntityManager $entityManager)
     {
-        $this->participantRepository = $participantRepository;
+        $this->participantRepository = $entityManager->getRepository('event-participant');
     }
 
     public function execute(array $options = array())
@@ -29,8 +30,8 @@ class ListParticipantUseCase implements UseCaseInterface
         $size = $options['size'];
 
         $offset = ($page - 1) * $size;
-                    $limit = $size;
-        
+        $limit = $size;
+
         $participants = $this->participantRepository->find([
             'event_id' => $options['event_id']
         ], $offset, $limit);

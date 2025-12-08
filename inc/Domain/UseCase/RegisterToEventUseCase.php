@@ -2,6 +2,7 @@
 
 namespace Wolf\Event\Domain\UseCase;
 
+use Wolf\Core\Domain\Entity\EntityManager;
 use Wolf\Core\Domain\UseCase\UseCaseInterface;
 use Wolf\Event\Domain\Repository\EventRepository;
 use Wolf\Event\Domain\Repository\ParticipantRepository;
@@ -13,11 +14,10 @@ class RegisterToEventUseCase implements UseCaseInterface
     private ParticipantRepository $participantRepository;
 
     public function __construct(
-        EventRepository $eventRepository,
-        ParticipantRepository $participantRepository
+        EntityManager $entityManager
     ) {
-        $this->eventRepository = $eventRepository;
-        $this->participantRepository = $participantRepository;
+        $this->eventRepository = $entityManager->getRepository('event');
+        $this->participantRepository = $entityManager->getRepository('event-participant');
     }
 
     public function execute(array $data = array())
